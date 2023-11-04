@@ -1,24 +1,10 @@
-import {
-  addTodo,
-  doTodo,
-  removeTodo,
-  filterAllTodo,
-  filterCompletedTodo,
-  filterInCompletedTodo,
-} from "../Redux/actionTypes.js";
-import {
-  addTodoAction,
-  removeTodoAction,
-  doTodoAction,
-  filterAllTodoAction,
-  filterCompletedTodoAction,
-  filterInCompletedTodoAction,
-} from "../Redux/actionCreators.js";
+import { addTodo, doTodo, removeTodo, getAlltodos } from "../Redux/actionTypes.js";
+import { addTodoAction, removeTodoAction, doTodoAction, getAlltodosAction } from "../Redux/actionCreators.js";
 
 const todosContainer = document.querySelector(".todo-list");
 const todoInputElem = document.querySelector(".todo-input");
 const addTodoBtn = document.querySelector(".todo-button");
-const filterOptions = document.querySelector(".filter-todo");
+const filterOptionsElem = document.querySelector(".filter-todo");
 
 // binding for module
 window.removeTodoHandler = removeTodoHandler;
@@ -26,6 +12,9 @@ window.completeTodoHandler = completeTodoHandler;
 
 function todolistReducer(state = [], action) {
   switch (action.type) {
+    case getAlltodos: {
+      return state;
+    }
     case addTodo: {
       let newState = [...state];
       let newTodoObj = {
@@ -43,24 +32,14 @@ function todolistReducer(state = [], action) {
     }
     case doTodo: {
       console.log(state);
-    
+
       let newState = [...state];
       newState.forEach((todo) => {
-       if( todo.id === action.id) {
-        todo.isCompleted = !todo.isCompleted
-       }
+        if (todo.id === action.id) {
+          todo.isCompleted = !todo.isCompleted;
+        }
       });
       return newState;
-     
-    }
-    case filterAllTodo: {
-      return state;
-    }
-    case filterCompletedTodo: {
-      return state;
-    }
-    case filterInCompletedTodo: {
-      return state;
     }
 
     default: {
@@ -72,9 +51,11 @@ function todolistReducer(state = [], action) {
 const store = Redux.createStore(todolistReducer);
 
 addTodoBtn.addEventListener("click", addTodoHanler);
+filterOptionsElem.addEventListener("change", changeTodoHanler);
+
 function addTodoHanler(event) {
-  const newTodoTitle = todoInputElem.value.trim();
   event.preventDefault();
+  const newTodoTitle = todoInputElem.value.trim();
   if (newTodoTitle !== "") {
     store.dispatch(addTodoAction(newTodoTitle));
     const todos = store.getState();
@@ -97,6 +78,21 @@ function removeTodoHandler(todoId) {
   generateTodosInDom(todos);
 }
 
+function changeTodoHanler() {
+  store.dispatch(getAlltodosAction());
+  let todos = store.getState();
+
+  if (filterOptionsElem.value === "completed") {
+    let completedTodos = todos.filter((todo) => todo.isCompleted);
+    generateTodosInDom(completedTodos);
+  } else if (filterOptionsElem.value === "incomplete") {
+    let inCompletedTodos = todos.filter((todo) => !todo.isCompleted);
+
+    generateTodosInDom(inCompletedTodos);
+  } else if (filterOptionsElem.value === "all") {
+    generateTodosInDom(todos);
+  }
+}
 function completeTodoHandler(todoId) {
   store.dispatch(doTodoAction(todoId));
   const todos = store.getState();
