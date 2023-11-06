@@ -48,7 +48,7 @@ function todolistReducer(state = [], action) {
   }
 }
 
-const store = Redux.createStore(todolistReducer);
+const store = createStore(todolistReducer);
 
 addTodoBtn.addEventListener("click", addTodoHanler);
 filterOptionsElem.addEventListener("change", changeTodoHanler);
